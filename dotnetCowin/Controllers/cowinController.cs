@@ -34,24 +34,45 @@ namespace dotnetCowin.Controllers
                 {
                     var json = await response.Content.ReadAsStringAsync();
                     var result = JsonConvert.DeserializeObject<VaccineNearYou>(json);
-                    EssentialDetails E1 = new EssentialDetails()
-                    {
-                        name = result.Centers[0].Name,
-                        address = result.Centers[0].Address,
-                        VaccineFees  = new List<VaccineFeeDetails>()
-                        {
-                            new VaccineFeeDetails
-                            {
-                                    VaccineName= result.Centers[0].VaccineFees[0].Vaccine,
-                                    Fees = result.Centers[0].VaccineFees[0].Fee
-                            }
-                   
-                        }
-                        
-                       
+                    EssentialDetails[] Er = new EssentialDetails[result.Centers.Count];
 
-                    };
-                    return Ok(E1);
+                    for(int i = 0;i < result.Centers.Count; i++)
+                    {
+                        Er[i] = new EssentialDetails();   
+                        Er[i].name = result.Centers[i].Name;
+                        Er[i].address = result.Centers[i].Address;
+                        //Er[i].VaccineFees = new List<VaccineFeeDetails>()
+                        //{
+                        //    new VaccineFeeDetails
+                        //    {
+                        //        VaccineName = result.Centers[i].VaccineFees[0].Vaccine,
+                        //        Fees = result.Centers[i].VaccineFees[0].Fee
+
+                        //    }
+                        //};
+
+                    
+                    }
+                    return Ok(Er);
+
+
+                    //{
+                    //    name = result.Centers[0].Name,
+                    //    address = result.Centers[0].Address,
+                    //    VaccineFees  = new List<VaccineFeeDetails>()
+                    //    {
+                    //        new VaccineFeeDetails
+                    //        {
+                    //                VaccineName= result.Centers[0].VaccineFees[0].Vaccine,
+                    //                Fees = result.Centers[0].VaccineFees[0].Fee
+                    //        }
+
+                    //    }
+
+
+
+                    //};
+
                 }
                 else
                 {

@@ -9,16 +9,16 @@ namespace dotnetCowin.Models
     {
         public string name { get; set; }
         public string address { get; set; }
-        public List<VaccineFeeDetails> VaccineFees { get; set; }
+        //public List<VaccineFeeDetails> VaccineFees { get; set; }
         
     }
-    public partial class VaccineFeeDetails
-    {
-        public string VaccineName { get; set; }
-        public long Fees { get; set; }
+    //public partial class VaccineFeeDetails
+    //{
+    //    public string VaccineName { get; set; }
+    //    public long Fees { get; set; }
 
 
 
-    }
+    //}
 
 }
