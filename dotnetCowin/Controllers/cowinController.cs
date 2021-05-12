@@ -1,5 +1,4 @@
-﻿
-using dotnetCowin.Models;
+﻿using dotnetCowin.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
@@ -17,8 +16,58 @@ namespace dotnetCowin.Controllers
     public class cowinController : ControllerBase
     {
         [HttpGet]
-        [Route("GetCalendarByPin")]
-        public async Task<IActionResult> GetCalendarByPin()
+        [Route("GetSessionsByDistrict")]
+        public async Task<IActionResult> AvailableSlots()
+        {
+
+            try
+            {
+                DateTime dt = DateTime.Now;
+                string Date = dt.ToString("dd'-'MM'-'yyyy");
+                int DistrictID = 20;
+                string url =
+                    "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id="+DistrictID +"&date="+Date;
+
+                HttpClient client = new HttpClient();
+                HttpResponseMessage response = await client.GetAsync(url);
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    var result = JsonConvert.DeserializeObject<SessionsByDistricts>(json);
+                    return Ok(result.Sessions[0].AvailableCapacity);
+
+
+
+                }
+                else
+                {
+                    return BadRequest("Error while retrieving");
+                }
+
+
+            }
+            catch(Exception e)
+            {
+                return NotFound(e.Message + " " + e.StackTrace);
+            }
+            
+
+
+
+
+        }
+
+
+
+
+
+
+
+
+
+        [HttpGet]
+        [Route("VaccinationNearMe")]
+        public async Task<IActionResult> VaccinationNearMe()
         {
             try
             {
@@ -36,24 +85,46 @@ namespace dotnetCowin.Controllers
                     var result = JsonConvert.DeserializeObject<VaccineNearYou>(json);
                     EssentialDetails[] Er = new EssentialDetails[result.Centers.Count];
 
-                    for(int i = 0;i < result.Centers.Count; i++)
+
+
+                    List<EssentialDetails> EList = new List<EssentialDetails>();
+
+                    foreach (var item in result.Centers)
                     {
-                        Er[i] = new EssentialDetails();   
-                        Er[i].name = result.Centers[i].Name;
-                        Er[i].address = result.Centers[i].Address;
-                        //Er[i].VaccineFees = new List<VaccineFeeDetails>()
+                        //if (item.Pincode == pin)
                         //{
-                        //    new VaccineFeeDetails
-                        //    {
-                        //        VaccineName = result.Centers[i].VaccineFees[0].Vaccine,
-                        //        Fees = result.Centers[i].VaccineFees[0].Fee
 
-                        //    }
-                        //};
-
-                    
+                        //}
                     }
-                    return Ok(Er);
+
+
+                    foreach (var item in result.Centers)
+                    {
+                        EList.Add(new EssentialDetails()
+                        {
+                            address = item.Address,
+                            name = item.Name
+                        });
+                    }
+
+                    //for(int i = 0;i < result.Centers.Count; i++)
+                    //{
+                    //    Er[i] = new EssentialDetails();   
+                    //    Er[i].name = result.Centers[i].Name;
+                    //    Er[i].address = result.Centers[i].Address;
+                    //    //Er[i].VaccineFees = new List<VaccineFeeDetails>()
+                    //    //{
+                    //    //    new VaccineFeeDetails
+                    //    //    {
+                    //    //        VaccineName = result.Centers[i].VaccineFees[0].Vaccine,
+                    //    //        Fees = result.Centers[i].VaccineFees[0].Fee
+
+                    //    //    }
+                    //    //};
+
+
+                    //}
+                    return Ok(EList);
 
 
                     //{
