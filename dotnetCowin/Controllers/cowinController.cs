@@ -22,19 +22,61 @@ namespace dotnetCowin.Controllers
 
             try
             {
+                HttpClient client = new HttpClient();
                 DateTime dt = DateTime.Now;
                 string Date = dt.ToString("dd'-'MM'-'yyyy");
+
+                string getState = "";
+
+                string getDistrict = "";
+
+                
+
+
+
+
                 int DistrictID = 20;
                 string url =
                     "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id="+DistrictID +"&date="+Date;
 
-                HttpClient client = new HttpClient();
+                
                 HttpResponseMessage response = await client.GetAsync(url);
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
                     var result = JsonConvert.DeserializeObject<SessionsByDistricts>(json);
-                    return Ok(result.Sessions[0].AvailableCapacity);
+                    List<TweetDetails> TList = new List<TweetDetails>();
+                    foreach (var item in result.Sessions)
+                    {
+                        if(item.AvailableCapacity > 0 && item.MinAgeLimit == 45)
+                        {
+
+                            TList.Add(new TweetDetails()
+                            {
+                                Name = item.Name,
+                                Address = item.Address,
+                                Pincode = item.Pincode,
+                                Fee = item.Fee,
+                                From = item.From,
+                                To = item.To
+
+                            });
+
+                            
+
+                        }
+                        else
+                        {
+                            return Ok("No Slots available right now! Try again later");
+                        }
+
+                    }
+
+                    return Ok(TList);
+                   
+
+
+                    
 
 
 

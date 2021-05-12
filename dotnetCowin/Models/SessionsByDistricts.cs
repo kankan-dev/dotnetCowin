@@ -35,10 +35,10 @@ namespace dotnetCowin.Models
         public long Pincode { get; set; }
 
         [JsonProperty("from")]
-        public DateTimeOffset From { get; set; }
+        public string From { get; set; }
 
         [JsonProperty("to")]
-        public DateTimeOffset To { get; set; }
+        public string To { get; set; }
 
         [JsonProperty("lat")]
         public long Lat { get; set; }
@@ -59,7 +59,7 @@ namespace dotnetCowin.Models
 
         [JsonProperty("fee")]
         
-        public long Fee { get; set; }
+        public string Fee { get; set; }
 
         [JsonProperty("min_age_limit")]
         public long MinAgeLimit { get; set; }
