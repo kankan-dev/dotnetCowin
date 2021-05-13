@@ -8,6 +8,10 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Twilio;
+using Twilio.Types;
+using Twilio.Rest.Api.V2010.Account;
+
 
 namespace dotnetCowin.Controllers
 {
@@ -15,7 +19,7 @@ namespace dotnetCowin.Controllers
     [ApiController]
     public class cowinController : ControllerBase
     {
-        [HttpGet]
+        [HttpPost]
         [Route("GetSessionsByDistrict")]
         public async Task<IActionResult> AvailableSlots()
         {
@@ -26,20 +30,15 @@ namespace dotnetCowin.Controllers
                 DateTime dt = DateTime.Now;
                 string Date = dt.ToString("dd'-'MM'-'yyyy");
 
-                string getState = "";
+                //string getState = "";
 
-                string getDistrict = "";
-
-                
-
-
-
-
+                //string getDistrict
                 int DistrictID = 20;
                 string url =
-                    "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id="+DistrictID +"&date="+Date;
+                "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id="+DistrictID +"&date="+Date;
 
-                
+                string AccountSid = "ACf082c56dca8a2201e8724718e6d8c36d";
+                string AccountAuth = "d78c50322cf0252710803bcc99e5f07c";
                 HttpResponseMessage response = await client.GetAsync(url);
                 if (response.IsSuccessStatusCode)
                 {
@@ -58,7 +57,8 @@ namespace dotnetCowin.Controllers
                                 Pincode = item.Pincode,
                                 Fee = item.Fee,
                                 From = item.From,
-                                To = item.To
+                                To = item.To,
+                                AvailableCapacity = item.AvailableCapacity
 
                             });
 
@@ -71,12 +71,55 @@ namespace dotnetCowin.Controllers
                         }
 
                     }
+                    string MessageBody = null;
 
-                    return Ok(TList);
+
+                    string[] MainBody = new string[TList.Count];
+                    for(int i = 0; i< TList.Count; i++)
+                    {
+                        MainBody[i] = getMultiplebody();
+                    }
+                    
+
+                    string getMultiplebody()
+                    {
+                        for (int i = 0; i < TList.Count; i++)
+                        {
+                            MessageBody = "Hospital Name:" + TList[i].Name + " Address:" + TList[i].Address
+                               + " Pincode:" + TList[i].Pincode + " Available Slots:" + TList[i].AvailableCapacity;
+
+                        }
+                        return MessageBody;
+                    }
+                    TwilioClient.Init(AccountSid, AccountAuth);
+                    var message = MessageResource.Create(
+                           from: new Twilio.Types.PhoneNumber("whatsapp:+14155238886"),
+                           body: string.Join("\n",MainBody)
+
+
+                           ,
+                           to: new Twilio.Types.PhoneNumber("whatsapp:+917002278087"));
+                   
+
                    
 
 
+                    return Content(message.Sid);
+
+                   
                     
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

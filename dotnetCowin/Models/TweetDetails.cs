@@ -15,6 +15,8 @@ namespace dotnetCowin.Models
         
         public string Fee { get; set; }
 
+        public long AvailableCapacity { get; set; }
+
         public string From { get; set; }
 
         public string To { get; set; }
