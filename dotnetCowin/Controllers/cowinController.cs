@@ -26,72 +26,13 @@ namespace dotnetCowin.Controllers
             var stateId = await getState(enter.state);
             long districtID = getDistrict(enter.district, stateId).Result;
 
-            //getState
-            async Task<long> getState(string statename)
-            {
-                HttpClient state = new HttpClient();
-                long id = 0;
-                string stateUrl = "https://cdn-api.co-vin.in/api/v2/admin/location/states";
-                HttpResponseMessage response = await state.GetAsync(stateUrl);
-                if (response.IsSuccessStatusCode)
-                {
-                    var json = await response.Content.ReadAsStringAsync();
-                    var result = JsonConvert.DeserializeObject<GetState>(json);
-                    for (int i = 0; i < result.States.Count; i++)
-                    {
-                        if (result.States[i].StateName.ToUpper() == statename.ToUpper())
-                        {
-                            id = result.States[i].StateId;
-                        }
-                    }
-                    return id;
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-            async Task<long> getDistrict(string districtname, long did)
-            {
-                HttpClient district = new HttpClient();
-                long id = 0;
-                string districtUrl = "https://cdn-api.co-vin.in/api/v2/admin/location/districts/" + did;
-                HttpResponseMessage response = await district.GetAsync(districtUrl);
-                if (response.IsSuccessStatusCode)
-                {
-                    var json = await response.Content.ReadAsStringAsync();
-                    var result = JsonConvert.DeserializeObject<GetDistrict>(json);
-
-                    for (int i = 0; i < result.Districts.Count; i++)
-                    {
-                        if (result.Districts[i].DistrictName.ToUpper() == districtname.ToUpper())
-                        {
-                            id = result.Districts[i].DistrictId;
-                        }
-
-                    }
-                    return id;
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-
-
-
-
-
+           
+            
             try
             {
                 HttpClient client = new HttpClient();
                 DateTime dt = DateTime.Now;
-                string Date = dt.ToString("dd'-'MM'-'yyyy");
-
-                //string getState = "";
-
-                //string getDistrict
-                
+                string Date = dt.ToString("dd'-'MM'-'yyyy");                
                 string url =
                 "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id=20"+"&date="+Date;
 
@@ -151,16 +92,8 @@ namespace dotnetCowin.Controllers
                     TwilioClient.Init(AccountSid, AccountAuth);
                     var message = MessageResource.Create(
                            from: new Twilio.Types.PhoneNumber("whatsapp:+14155238886"),
-                           body: "Alerts by Kankan \n" + string.Join("\n", MainBody)
-
-
-                           ,
+                           body: "Alerts by Kankan \n" + string.Join("\n", MainBody),
                            to: new Twilio.Types.PhoneNumber("whatsapp:+917002278087"));
-
-
-
-
-
                     return Ok(message.Sid);
                     //return Ok(TList[1]);
 
@@ -177,22 +110,59 @@ namespace dotnetCowin.Controllers
             {
                 return NotFound(e.Message + " " + e.StackTrace);
             }
-            
-
-
-
-
         }
-       
+        //getState
+        public async Task<long> getState(string statename)
+        {
+            HttpClient state = new HttpClient();
+            long id = 0;
+            string stateUrl = "https://cdn-api.co-vin.in/api/v2/admin/location/states";
+            HttpResponseMessage response = await state.GetAsync(stateUrl);
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var result = JsonConvert.DeserializeObject<GetState>(json);
+                for (int i = 0; i < result.States.Count; i++)
+                {
+                    if (result.States[i].StateName.ToUpper() == statename.ToUpper())
+                    {
+                        id = result.States[i].StateId;
+                    }
+                }
+                return id;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+        //getDistrict
+        public async Task<long> getDistrict(string districtname, long did)
+        {
+            HttpClient district = new HttpClient();
+            long id = 0;
+            string districtUrl = "https://cdn-api.co-vin.in/api/v2/admin/location/districts/" + did;
+            HttpResponseMessage response = await district.GetAsync(districtUrl);
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var result = JsonConvert.DeserializeObject<GetDistrict>(json);
 
+                for (int i = 0; i < result.Districts.Count; i++)
+                {
+                    if (result.Districts[i].DistrictName.ToUpper() == districtname.ToUpper())
+                    {
+                        id = result.Districts[i].DistrictId;
+                    }
 
-
-
-
-
-
-
-
+                }
+                return id;
+            }
+            else
+            {
+                return 0;
+            }
+        }
         [HttpGet]
         [Route("VaccinationNearMe")]
         public async Task<IActionResult> VaccinationNearMe()
