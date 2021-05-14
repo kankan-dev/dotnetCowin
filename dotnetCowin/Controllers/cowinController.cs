@@ -26,15 +26,13 @@ namespace dotnetCowin.Controllers
             var stateId = await getState(enter.state);
             long districtID = getDistrict(enter.district, stateId).Result;
 
-           
-            
             try
             {
                 HttpClient client = new HttpClient();
                 DateTime dt = DateTime.Now;
                 string Date = dt.ToString("dd'-'MM'-'yyyy");                
                 string url =
-                "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id=20"+"&date="+Date;
+                "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id="+districtID+"&date="+Date;
 
                 string AccountSid = "ACf082c56dca8a2201e8724718e6d8c36d";
                 string AccountAuth = "8f3a5d356e84e96767987e51ab60da79";
