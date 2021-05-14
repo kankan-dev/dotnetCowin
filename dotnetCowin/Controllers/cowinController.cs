@@ -93,7 +93,7 @@ namespace dotnetCowin.Controllers
                     var message = MessageResource.Create(
                            from: new Twilio.Types.PhoneNumber("whatsapp:+14155238886"),
                            body: "Alerts by Kankan \n" + string.Join("\n", MainBody),
-                           to: new Twilio.Types.PhoneNumber("whatsapp:+917002278087"));
+                           to: new Twilio.Types.PhoneNumber("whatsapp:+91"+enter.phonenumber));
                     return Ok(message.Sid);
                     //return Ok(TList[1]);
 
