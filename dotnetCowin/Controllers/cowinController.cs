@@ -23,8 +23,10 @@ namespace dotnetCowin.Controllers
         [Route("GetSessionsByDistrict")]
         public async Task<IActionResult> AvailableSlots([FromBody] EnterDetails enter)
         {
-            long stateId = getState(enter.state).Result;
+            var stateId = await getState(enter.state);
             long districtID = getDistrict(enter.district, stateId).Result;
+
+            //getState
             async Task<long> getState(string statename)
             {
                 HttpClient state = new HttpClient();
@@ -53,16 +55,16 @@ namespace dotnetCowin.Controllers
             {
                 HttpClient district = new HttpClient();
                 long id = 0;
-                string districtUrl = "https://cdn-api.co-vin.in/api/v2/admin/location/districts/"+did;
+                string districtUrl = "https://cdn-api.co-vin.in/api/v2/admin/location/districts/" + did;
                 HttpResponseMessage response = await district.GetAsync(districtUrl);
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
                     var result = JsonConvert.DeserializeObject<GetDistrict>(json);
 
-                    for(int i = 0; i < result.Districts.Count; i++)
+                    for (int i = 0; i < result.Districts.Count; i++)
                     {
-                        if(result.Districts[i].DistrictName.ToUpper() == districtname.ToUpper())
+                        if (result.Districts[i].DistrictName.ToUpper() == districtname.ToUpper())
                         {
                             id = result.Districts[i].DistrictId;
                         }
@@ -91,10 +93,10 @@ namespace dotnetCowin.Controllers
                 //string getDistrict
                 
                 string url =
-                "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id="+districtID +"&date="+Date;
+                "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id=20"+"&date="+Date;
 
                 string AccountSid = "ACf082c56dca8a2201e8724718e6d8c36d";
-                string AccountAuth = "d78c50322cf0252710803bcc99e5f07c";
+                string AccountAuth = "8f3a5d356e84e96767987e51ab60da79";
                 HttpResponseMessage response = await client.GetAsync(url);
                 if (response.IsSuccessStatusCode)
                 {
