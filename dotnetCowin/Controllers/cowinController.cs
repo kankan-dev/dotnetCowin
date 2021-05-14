@@ -21,8 +21,64 @@ namespace dotnetCowin.Controllers
     {
         [HttpPost]
         [Route("GetSessionsByDistrict")]
-        public async Task<IActionResult> AvailableSlots()
+        public async Task<IActionResult> AvailableSlots([FromBody] EnterDetails enter)
         {
+            long stateId = getState(enter.state).Result;
+            long districtID = getDistrict(enter.district, stateId).Result;
+            async Task<long> getState(string statename)
+            {
+                HttpClient state = new HttpClient();
+                long id = 0;
+                string stateUrl = "https://cdn-api.co-vin.in/api/v2/admin/location/states";
+                HttpResponseMessage response = await state.GetAsync(stateUrl);
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    var result = JsonConvert.DeserializeObject<GetState>(json);
+                    for (int i = 0; i < result.States.Count; i++)
+                    {
+                        if (result.States[i].StateName.ToUpper() == statename.ToUpper())
+                        {
+                            id = result.States[i].StateId;
+                        }
+                    }
+                    return id;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            async Task<long> getDistrict(string districtname, long did)
+            {
+                HttpClient district = new HttpClient();
+                long id = 0;
+                string districtUrl = "https://cdn-api.co-vin.in/api/v2/admin/location/districts/"+did;
+                HttpResponseMessage response = await district.GetAsync(districtUrl);
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    var result = JsonConvert.DeserializeObject<GetDistrict>(json);
+
+                    for(int i = 0; i < result.Districts.Count; i++)
+                    {
+                        if(result.Districts[i].DistrictName.ToUpper() == districtname.ToUpper())
+                        {
+                            id = result.Districts[i].DistrictId;
+                        }
+
+                    }
+                    return id;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+
+
+
+
 
             try
             {
@@ -33,9 +89,9 @@ namespace dotnetCowin.Controllers
                 //string getState = "";
 
                 //string getDistrict
-                int DistrictID = 20;
+                
                 string url =
-                "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id="+DistrictID +"&date="+Date;
+                "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id="+districtID +"&date="+Date;
 
                 string AccountSid = "ACf082c56dca8a2201e8724718e6d8c36d";
                 string AccountAuth = "d78c50322cf0252710803bcc99e5f07c";
@@ -75,52 +131,36 @@ namespace dotnetCowin.Controllers
 
 
                     string[] MainBody = new string[TList.Count];
-                    for(int i = 0; i< TList.Count; i++)
+                    for ( int i = 0; i < TList.Count; i++)
                     {
-                        MainBody[i] = getMultiplebody();
+                        MainBody[i] = getMultiplebody(i);
                     }
-                    
 
-                    string getMultiplebody()
+
+                    string getMultiplebody(int i )
                     {
-                        for (int i = 0; i < TList.Count; i++)
-                        {
+                        
                             MessageBody = "Hospital Name:" + TList[i].Name + " Address:" + TList[i].Address
                                + " Pincode:" + TList[i].Pincode + " Available Slots:" + TList[i].AvailableCapacity;
 
-                        }
-                        return MessageBody;
+                       
+                     return MessageBody;
                     }
                     TwilioClient.Init(AccountSid, AccountAuth);
                     var message = MessageResource.Create(
                            from: new Twilio.Types.PhoneNumber("whatsapp:+14155238886"),
-                           body: string.Join("\n",MainBody)
+                           body: "Alerts by Kankan \n" + string.Join("\n", MainBody)
 
 
                            ,
                            to: new Twilio.Types.PhoneNumber("whatsapp:+917002278087"));
-                   
-
-                   
-
-
-                    return Content(message.Sid);
-
-                   
-                    
 
 
 
 
 
-
-
-
-
-
-
-
-
+                    return Ok(message.Sid);
+                    //return Ok(TList[1]);
 
 
                 }
@@ -141,6 +181,7 @@ namespace dotnetCowin.Controllers
 
 
         }
+       
 
 
 
