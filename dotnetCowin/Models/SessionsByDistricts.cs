@@ -54,6 +54,13 @@ namespace dotnetCowin.Models
         [JsonProperty("date")]
         public string Date { get; set; }
 
+        [JsonProperty("available_capacity_dose1")]
+
+        public long Dose1 { get; set; }
+
+        [JsonProperty("available_capacity_dose2")]
+        public long Dose2 { get; set; }
+
         [JsonProperty("available_capacity")]
         public long AvailableCapacity { get; set; }
 

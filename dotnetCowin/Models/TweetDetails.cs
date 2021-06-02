@@ -17,6 +17,10 @@ namespace dotnetCowin.Models
 
         public long AvailableCapacity { get; set; }
 
+        public long FirstDose { get; set; }
+
+        public long SecondDose { get; set; }
+
         public string From { get; set; }
 
         public string To { get; set; }

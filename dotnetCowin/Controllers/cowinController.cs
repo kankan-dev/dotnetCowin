@@ -23,8 +23,11 @@ namespace dotnetCowin.Controllers
         [Route("GetSessionsByDistrict")]
         public async Task<IActionResult> AvailableSlots([FromBody] EnterDetails enter)
         {
-            var stateId = await getState(enter.state);
-            long districtID = getDistrict(enter.district, stateId).Result;
+            GetStateCode stateCode = new GetStateCode();
+            var stateId = await stateCode.getState(enter.state);
+
+            GetDistrictCode districtCode = new GetDistrictCode();
+            long districtID = districtCode.getDistrict(enter.district, stateId).Result;
 
             try
             {
@@ -55,7 +58,9 @@ namespace dotnetCowin.Controllers
                                 Fee = item.Fee,
                                 From = item.From,
                                 To = item.To,
-                                AvailableCapacity = item.AvailableCapacity
+                                AvailableCapacity = item.AvailableCapacity,
+                                FirstDose = item.Dose1,
+                                SecondDose = item.Dose2
 
                             });
 
@@ -81,8 +86,9 @@ namespace dotnetCowin.Controllers
                     string getMultiplebody(int i )
                     {
                         
-                            MessageBody = "Hospital Name:" + TList[i].Name + " Address:" + TList[i].Address
-                               + " Pincode:" + TList[i].Pincode + " Available Slots:" + TList[i].AvailableCapacity;
+                            MessageBody = "Hospital Name: " + TList[i].Name + " Address: " + TList[i].Address
+                               + " Pincode: " + TList[i].Pincode + " Available Slots: " + TList[i].AvailableCapacity + " Dose 1: " + TList[i].FirstDose
+                               + " Dose 2: " + TList[i].SecondDose;
 
                        
                      return MessageBody;
@@ -110,57 +116,9 @@ namespace dotnetCowin.Controllers
             }
         }
         //getState
-        public async Task<long> getState(string statename)
-        {
-            HttpClient state = new HttpClient();
-            long id = 0;
-            string stateUrl = "https://cdn-api.co-vin.in/api/v2/admin/location/states";
-            HttpResponseMessage response = await state.GetAsync(stateUrl);
-            if (response.IsSuccessStatusCode)
-            {
-                var json = await response.Content.ReadAsStringAsync();
-                var result = JsonConvert.DeserializeObject<GetState>(json);
-                for (int i = 0; i < result.States.Count; i++)
-                {
-                    if (result.States[i].StateName.ToUpper() == statename.ToUpper())
-                    {
-                        id = result.States[i].StateId;
-                    }
-                }
-                return id;
-            }
-            else
-            {
-                return 0;
-            }
-        }
+        
         //getDistrict
-        public async Task<long> getDistrict(string districtname, long did)
-        {
-            HttpClient district = new HttpClient();
-            long id = 0;
-            string districtUrl = "https://cdn-api.co-vin.in/api/v2/admin/location/districts/" + did;
-            HttpResponseMessage response = await district.GetAsync(districtUrl);
-            if (response.IsSuccessStatusCode)
-            {
-                var json = await response.Content.ReadAsStringAsync();
-                var result = JsonConvert.DeserializeObject<GetDistrict>(json);
-
-                for (int i = 0; i < result.Districts.Count; i++)
-                {
-                    if (result.Districts[i].DistrictName.ToUpper() == districtname.ToUpper())
-                    {
-                        id = result.Districts[i].DistrictId;
-                    }
-
-                }
-                return id;
-            }
-            else
-            {
-                return 0;
-            }
-        }
+        
         [HttpGet]
         [Route("VaccinationNearMe")]
         public async Task<IActionResult> VaccinationNearMe()
