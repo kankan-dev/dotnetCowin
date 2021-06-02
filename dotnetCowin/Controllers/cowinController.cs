@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using Twilio;
 using Twilio.Types;
 using Twilio.Rest.Api.V2010.Account;
-
+using Microsoft.Extensions.Configuration;
 
 namespace dotnetCowin.Controllers
 {
@@ -19,8 +19,16 @@ namespace dotnetCowin.Controllers
     [ApiController]
     public class cowinController : ControllerBase
     {
+        private IConfiguration _config;
+
+        public cowinController(IConfiguration iconfig)
+        {
+            _config = iconfig;
+        }
+
         [HttpPost]
         [Route("GetSessionsByDistrict")]
+
         public async Task<IActionResult> AvailableSlots([FromBody] EnterDetails enter)
         {
             GetStateCode stateCode = new GetStateCode();
@@ -37,8 +45,10 @@ namespace dotnetCowin.Controllers
                 string url =
                 "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id="+districtID+"&date="+Date;
 
-                string AccountSid = "ACf082c56dca8a2201e8724718e6d8c36d";
-                string AccountAuth = "8f3a5d356e84e96767987e51ab60da79";
+                string AccountSid = _config.GetSection("MyKeys").GetSection("AccountSid").Value;
+
+                string AccountAuth = _config.GetValue<string>("MyKeys:AccountAuth");
+
                 HttpResponseMessage response = await client.GetAsync(url);
                 if (response.IsSuccessStatusCode)
                 {
@@ -67,39 +77,39 @@ namespace dotnetCowin.Controllers
                             
 
                         }
-                        else
-                        {
-                            return Ok("No Slots available right now! Try again later");
-                        }
+                        //else
+                        //{
+                        //    return Ok("No Slots available right now! Try again later");
+                        //}
 
                     }
                     string MessageBody = null;
 
 
                     string[] MainBody = new string[TList.Count];
-                    for ( int i = 0; i < TList.Count; i++)
+                    for (int i = 0; i < TList.Count; i++)
                     {
                         MainBody[i] = getMultiplebody(i);
                     }
 
 
-                    string getMultiplebody(int i )
+                    string getMultiplebody(int i)
                     {
-                        
-                            MessageBody = "Hospital Name: " + TList[i].Name + " Address: " + TList[i].Address
-                               + " Pincode: " + TList[i].Pincode + " Available Slots: " + TList[i].AvailableCapacity + " Dose 1: " + TList[i].FirstDose
-                               + " Dose 2: " + TList[i].SecondDose;
 
-                       
-                     return MessageBody;
+                        MessageBody = "Hospital Name: " + TList[i].Name + " Address: " + TList[i].Address
+                           + " Pincode: " + TList[i].Pincode + " Available Slots: " + TList[i].AvailableCapacity + " Dose 1: " + TList[i].FirstDose
+                           + " Dose 2: " + TList[i].SecondDose;
+
+
+                        return MessageBody;
                     }
                     TwilioClient.Init(AccountSid, AccountAuth);
                     var message = MessageResource.Create(
                            from: new Twilio.Types.PhoneNumber("whatsapp:+14155238886"),
                            body: "Alerts by Kankan \n" + string.Join("\n", MainBody),
-                           to: new Twilio.Types.PhoneNumber("whatsapp:+91"+enter.phonenumber));
+                           to: new Twilio.Types.PhoneNumber("whatsapp:+91" + enter.phonenumber));
                     return Ok(message.Sid);
-                    //return Ok(TList[1]);
+                    //return Ok(TList);
 
 
                 }
