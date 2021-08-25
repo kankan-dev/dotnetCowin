@@ -7,6 +7,9 @@ Add this number to your Whatsapp as Twilio
 and Send Code "join needs-cast" and remove inverted comma
 
 Step:2
+Install packages Newtonsoft JSON, Twilio and Tweetinvi and run this ASP.NET core Web API
+
+Step:3
 Run in postman 
 
 {
